@@ -2,6 +2,17 @@
   text-align: center;
 }
 
+.search-form {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.card {
+  display: flex;
+  justify-content: center;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
