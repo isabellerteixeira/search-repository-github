@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 function App() {
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
-  const [repos, setRepos] = useState("");
+  const [publicRepos, setPublicRepos] = useState("");
   const [avatar, setAvatar] = useState("");
   const [followers, setFollowers] = useState("");
   const [following, setFollowing] = useState("");
-  const [htmlUrl, setHtmlUrl] = useState("");
+  const [gitHubUrl, setGitHubUrl] = useState("");
   const [userInput, setUserInput] = useState("");
   const [error, setError] = useState("");
   const [repositoriesUrl, setRepositoriesUrl] = useState("");
@@ -28,13 +28,19 @@ function App() {
   }) => {
     setName(name);
     setUserName(login);
-    setRepos(public_repos);
+    setPublicRepos(public_repos);
     setAvatar(avatar_url);
     setFollowers(followers);
     setFollowing(following);
-    setHtmlUrl(html_url);
+    setGitHubUrl(html_url);
     setRepositoriesUrl(repos_url);
   };
+
+  useEffect(() => {
+    fetch(repositoriesUrl)
+      .then(response => response.json())
+      .then(data => setRepositories(data));
+  }, [repositoriesUrl]);
 
   const handleSearch = e => {
     setUserInput(e.target.value);
@@ -47,27 +53,20 @@ function App() {
     if (data.message) setError(data.message);
     else {
       setData(data);
-      handleRepositories();
       setError(null);
     }
   }
 
-  async function handleRepositories() {
-    const response = await fetch(repositoriesUrl);
-    const data = await response.json();
-    setRepositories(data);
-  }
-
   function ShowRepositories() {
-    console.log(repositories);
-    return repositories.map((repository, index) => (
-      <Table.Row key={index}>
-        <Table.Cell collapsing>
-          <Icon name="code" /> {repository.name}
-        </Table.Cell>
-        <Table.Cell>{repository.language}</Table.Cell>
-      </Table.Row>
-    ));
+    if (repositories)
+      return repositories.map((repository, index) => (
+        <Table.Row key={index}>
+          <Table.Cell collapsing>
+            <Icon name="code" /> {repository.name}
+          </Table.Cell>
+          <Table.Cell>{repository.language}</Table.Cell>
+        </Table.Row>
+      ));
   }
 
   return (
@@ -88,15 +87,13 @@ function App() {
               <Card.Content>
                 <Card.Header>{name}</Card.Header>
                 <Card.Meta>
-                  <span className="date" as={Link} to={htmlUrl}>
-                    {userName}
-                  </span>
+                  <span className="date">{userName}</span>
                 </Card.Meta>
               </Card.Content>
               <Card.Content extra>
                 <a>
                   <Icon name="user" />
-                  {repos} Repos
+                  {publicRepos} Repos
                 </a>
               </Card.Content>
               <Card.Content extra>
