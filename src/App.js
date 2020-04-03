@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import { Form, Card, Image, Icon, Table } from "semantic-ui-react";
-import { Link } from "react-router-dom";
+import { Form } from "semantic-ui-react";
+import UserCard from "./UserCard.js";
+import UserRepositoriesList from "./UserRepositoriesList";
+import RepositoriesList from "./RepositoriesList";
 
 function App() {
   const [name, setName] = useState("");
@@ -15,8 +17,10 @@ function App() {
   const [error, setError] = useState("");
   const [repositoriesUrl, setRepositoriesUrl] = useState("");
   const [repositories, setRepositories] = useState([]);
+  const [totalRepositories, setTotalRepositories] = useState([]);
+  const [items, setItems] = useState([]);
 
-  const setData = ({
+  const setUserData = ({
     name,
     login,
     public_repos,
@@ -36,6 +40,11 @@ function App() {
     setRepositoriesUrl(repos_url);
   };
 
+  const setRepositoryData = ({ total_count, items }) => {
+    setTotalRepositories(total_count);
+    setItems(items);
+  };
+
   useEffect(() => {
     fetch(repositoriesUrl)
       .then(response => response.json())
@@ -46,83 +55,57 @@ function App() {
     setUserInput(e.target.value);
   };
 
-  async function halndleSubmit() {
+  async function halndleUserSearch() {
     const url = "https://api.github.com/users/" + userInput;
     const response = await fetch(url);
     const data = await response.json();
     if (data.message) setError(data.message);
     else {
-      setData(data);
+      setUserData(data);
       setError(null);
     }
   }
 
-  function ShowRepositories() {
-    if (repositories)
-      return repositories.map((repository, index) => (
-        <Table.Row key={index}>
-          <Table.Cell collapsing>
-            <Icon name="code" /> {repository.name}
-          </Table.Cell>
-          <Table.Cell>{repository.language}</Table.Cell>
-        </Table.Row>
-      ));
+  async function halndleRepositoriesSearch() {
+    const url =
+      "https://api.github.com/search/repositories?q=" +
+      userInput +
+      ":name&sort=stars&order=desc";
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.message) setError(data.message);
+    else {
+      setRepositoryData(data);
+      setError(null);
+    }
   }
 
   return (
     <div className="App-header">
-      <Form className="search-form" onSubmit={halndleSubmit}>
+      <Form className="search-form">
         <Form.Group>
           <Form.Input placeholder="Name" onChange={handleSearch} />
-          <Form.Button content="Submit" />
+          <Form.Button content="Search User" onClick={halndleUserSearch} />
+          <Form.Button
+            content="Search Repositories"
+            onClick={halndleRepositoriesSearch}
+          />
         </Form.Group>
       </Form>
       {error ? (
         <h1>{error}</h1>
       ) : (
         <div>
-          <div className="card">
-            <Card>
-              <Image src={avatar} wrapped ui={false} />
-              <Card.Content>
-                <Card.Header>{name}</Card.Header>
-                <Card.Meta>
-                  <span className="date">{userName}</span>
-                </Card.Meta>
-              </Card.Content>
-              <Card.Content extra>
-                <a>
-                  <Icon name="user" />
-                  {publicRepos} Repos
-                </a>
-              </Card.Content>
-              <Card.Content extra>
-                <a>
-                  <Icon name="user" />
-                  {followers} Followers
-                </a>
-              </Card.Content>
-              <Card.Content extra>
-                <a>
-                  <Icon name="user" />
-                  {following} Following
-                </a>
-              </Card.Content>
-            </Card>
-          </div>
-
-          <Table celled striped>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell colSpan="3">
-                  Git Repositories
-                </Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              <ShowRepositories />
-            </Table.Body>
-          </Table>
+          <UserCard
+            avatar={avatar}
+            name={name}
+            userName={userName}
+            publicRepos={publicRepos}
+            followers={followers}
+            following={following}
+          />
+          <UserRepositoriesList repositories={repositories} />
+          <RepositoriesList totalRepositories={totalRepositories} items={items} />
         </div>
       )}
     </div>
