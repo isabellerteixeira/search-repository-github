@@ -2,10 +2,6 @@
   text-align: center;
 }
 
-.ui.table.Bigger-margin-bottom{
-  margin-bottom: 10px !important;
-}
-
 .search-form {
   display: flex;
   justify-content: center;
@@ -28,7 +24,7 @@
   }
 }
 
-.Homepage {
+.App-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -37,10 +33,6 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-}
-
-.Bigger-font{
-  font-size: calc(15px + 2vmin);
 }
 
 .App-link {

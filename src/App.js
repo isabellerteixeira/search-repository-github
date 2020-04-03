@@ -14,6 +14,7 @@ function App() {
   const [avatar, setAvatar] = useState("");
   const [followers, setFollowers] = useState("");
   const [following, setFollowing] = useState("");
+  const [gitHubUrl, setGitHubUrl] = useState("");
   const [userInput, setUserInput] = useState("");
   const [error, setError] = useState("");
   const [repositoriesUrl, setRepositoriesUrl] = useState("");
@@ -28,6 +29,7 @@ function App() {
     avatar_url,
     followers,
     following,
+    html_url,
     repos_url
   }) => {
     setName(name);
@@ -36,6 +38,7 @@ function App() {
     setAvatar(avatar_url);
     setFollowers(followers);
     setFollowing(following);
+    setGitHubUrl(html_url);
     setRepositoriesUrl(repos_url);
     setIsUserSearch(true);
     setisRepositoriesSearch(false);
@@ -48,52 +51,55 @@ function App() {
     setisRepositoriesSearch(true);
   };
 
-  const handleSearch = e => {
-    setUserInput(e.target.value);
-  };
-
-  useEffect(() => {
-    document.title = "Github Search";
-  }, []);
-
   useEffect(() => {
     fetch(repositoriesUrl)
       .then(response => response.json())
       .then(data => setRepositories(data));
   }, [repositoriesUrl]);
 
+  const handleSearch = e => {
+    setUserInput(e.target.value);
+  };
+
   async function halndleUserSearch() {
-    if (userInput.length !== 0) {
-      const url = "https://api.github.com/users/" + userInput;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.message) setError(data.message);
-      else {
-        setUserData(data);
-        setError(null);
-      }
+    const url = "https://api.github.com/users/" + userInput;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.message) setError(data.message);
+    else {
+      setUserData(data);
+      setError(null);
     }
   }
 
   async function halndleRepositoriesSearch() {
-    if (userInput.length !== 0) {
-      const url =
-        "https://api.github.com/search/repositories?q=" +
-        userInput +
-        ":name&type=Repositories";
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.message) setError(data.message);
-      else {
-        setRepositoryData(data);
-        setError(null);
-      }
+    const url =
+      "https://api.github.com/search/repositories?q=" +
+      userInput +
+      ":name&sort=stars&order=desc";
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.message) setError(data.message);
+    else {
+      setRepositoryData(data);
+      setError(null);
     }
   }
 
-  function ShowLists() {
-    if (isUserSearch) {
-      return (
+  return (
+    <div className="App-header">
+      <Form className="search-form">
+        <Form.Group>
+          <Form.Input placeholder="Name" onChange={handleSearch} />
+          <Form.Button content="Search User" onClick={halndleUserSearch} />
+          <Form.Button
+            content="Search Repositories"
+            onClick={halndleRepositoriesSearch}
+          />
+        </Form.Group>
+      </Form>
+      {error && <h1>{error}</h1>}
+      {isUserSearch && (
         <div>
           <UserCard
             avatar={avatar}
@@ -105,32 +111,10 @@ function App() {
           />
           <UserRepositoriesList repositories={repositories} />
         </div>
-      );
-    } else if (
-      isRepositoriesSearch &&
-      items.length !== 0
-    ) {
-      return (
+      )}
+      {isRepositoriesSearch && 
         <RepositoriesList totalRepositories={totalRepositories} items={items} />
-      );
-    }
-    return Error;
-  }
-
-  return (
-    <div className="Homepage">
-      <p className="Bigger-font"> GitHub Search </p>
-      <Form className="search-form">
-        <Form.Group>
-          <Form.Input placeholder="Name" onChange={handleSearch} />
-          <Form.Button content="Search User" onClick={halndleUserSearch} />
-          <Form.Button
-            content="Search Repositories"
-            onClick={halndleRepositoriesSearch}
-          />
-        </Form.Group>
-      </Form>
-      {error ? <h1>{error}</h1> : <ShowLists />}
+      }
     </div>
   );
 }
