@@ -10,7 +10,7 @@ const UserCard = props => {
           <Card.Content>
             <Card.Header>{props.name}</Card.Header>
             <Card.Meta>
-              <span className="date">{props.userName}</span>
+              <span className="date" >{props.userName}</span>
             </Card.Meta>
           </Card.Content>
           <Card.Content extra>
