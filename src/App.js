@@ -6,6 +6,8 @@ import UserRepositoriesList from "./UserRepositoriesList";
 import RepositoriesList from "./RepositoriesList";
 
 function App() {
+  const [isUserSearch, setIsUserSearch] = useState(false);
+  const [isRepositoriesSearch, setisRepositoriesSearch] = useState(false);
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
   const [publicRepos, setPublicRepos] = useState("");
@@ -38,11 +40,15 @@ function App() {
     setFollowing(following);
     setGitHubUrl(html_url);
     setRepositoriesUrl(repos_url);
+    setIsUserSearch(true);
+    setisRepositoriesSearch(false);
   };
 
   const setRepositoryData = ({ total_count, items }) => {
     setTotalRepositories(total_count);
     setItems(items);
+    setIsUserSearch(false);
+    setisRepositoriesSearch(true);
   };
 
   useEffect(() => {
@@ -92,9 +98,8 @@ function App() {
           />
         </Form.Group>
       </Form>
-      {error ? (
-        <h1>{error}</h1>
-      ) : (
+      {error && <h1>{error}</h1>}
+      {isUserSearch && (
         <div>
           <UserCard
             avatar={avatar}
@@ -105,9 +110,11 @@ function App() {
             following={following}
           />
           <UserRepositoriesList repositories={repositories} />
-          <RepositoriesList totalRepositories={totalRepositories} items={items} />
         </div>
       )}
+      {isRepositoriesSearch && 
+        <RepositoriesList totalRepositories={totalRepositories} items={items} />
+      }
     </div>
   );
 }
